@@ -1,0 +1,16 @@
+# Python Specific
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# IDE Specific (PyCharm/VSCode)
+.idea/
+.vscode/
+*.swp
+
+# OS Specific
+.DS_Store
+Thumbs.db
