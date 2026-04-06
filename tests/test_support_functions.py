@@ -1,6 +1,6 @@
 import numpy as np
 
-from support_functions import spot_to_forward, forward_to_spot, get_correlated_random_shocks
+from src.support_functions import spot_to_forward, forward_to_spot, get_correlated_random_shocks
 
 
 def test_spot_to_forward_round_trip_conversion():
@@ -56,9 +56,9 @@ def test_spot_to_forward_first_element_equality():
     The 1st spot rate and 1st forward rate must always be identical at t1.
     """
     spots = np.array([0.042, 0.051, 0.058])
-    fwds = spot_to_forward(spots)
+    forwards = spot_to_forward(spots)
 
-    assert fwds[0] == spots[0]
+    assert forwards[0] == spots[0]
 
 
 def test_get_correlated_random_shocks_correct_correlation():

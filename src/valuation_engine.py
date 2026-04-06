@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import time
 from numpy import bool, ndarray
-from support_functions import spot_to_forward, forward_to_spot, get_correlated_random_shocks
+
+from src.support_functions import spot_to_forward, forward_to_spot, get_correlated_random_shocks
 
 def get_asset_data(file_name : str):
 
@@ -16,7 +16,7 @@ def get_asset_data(file_name : str):
 def simulate_spot_curve(spot : ndarray, vol : ndarray, num_sims : int, correlation:float=0) -> ndarray:
 
     """Generates random spot interest rate curves.
-    Each forward rate is shifted by an correlated random normal variable"""
+    Each forward rate is shifted by a correlated random normal variable"""
 
     forward_curve = spot_to_forward(spot)
 
@@ -67,7 +67,6 @@ def value_portfolio(cash_flows : ndarray,spreads : ndarray,spot : ndarray, crite
     values = np.sum(cash_flows_final[criterion,:] * discount_factors,axis=0)
 
     return values
-
 
 def run_simulations_scenario_loop(cash_flows : ndarray, spreads : ndarray, spot : ndarray)-> ndarray:
 
@@ -125,67 +124,6 @@ def run_simulations_asset_loop_2B(cash_flows : ndarray, spreads : ndarray, spot 
 
     return np.sum(np.array(scenarios),axis=0)
 
-def main():
-
-    """
-        Demonstration of the increase in speed of running optimised code.
-    """
-
-    # 0. Settings
-    num_sims = 100000
-    selected_percentile = 99.5
-    forward_volatility = 0.0075
-    forward_shock_volatility = 0.9
-
-    # A. Get asset data
-    assets, cash_flows, spot = get_asset_data(r'Bonds1.xlsx')
-    num_assets = len(assets)
-
-    # B. Get interest rate scenarios
-    spot_sims = simulate_spot_curve(spot.to_numpy(),vol=np.array(forward_volatility),num_sims=num_sims,correlation=forward_shock_volatility)
-
-    # C. Run simulations and record time taken - loop through SIMULATIONS
-    print(f'*** Run {num_sims} Interest Rate Simulations - Approach1 ***')
-    simulations_to_perform = num_sims
-    start_time = time.time()
-    simulations = run_simulations_scenario_loop(cash_flows.to_numpy(), assets['Spread'].to_numpy(), spot_sims[:,:simulations_to_perform])
-    end_time = time.time()
-    result_value = np.percentile(simulations, 100 - selected_percentile)
-    result_loss = result_value - np.sum(assets['Price'])
-    print(f'Result ({selected_percentile}th percentile): {result_value}')
-    print(f'Loss ({selected_percentile}th percentile): {result_loss}')
-    print(f'Time taken: {end_time - start_time} seconds for {simulations_to_perform} simulations')
-    print(f'Estimated Total Time: {(end_time - start_time) * num_sims/simulations_to_perform/60/60} hours')
-
-    # D. Run simulations and record time taken - loop through ASSETS
-    print(f'\n\n*** Run {num_sims} Interest Rate Simulations - Approach 2A ***')
-    assets_to_consider = num_assets
-    start_time = time.time()
-    simulations = run_simulations_asset_loop_2A(cash_flows.to_numpy()[:, :assets_to_consider], assets['Spread'].to_numpy()[:assets_to_consider], spot_sims)
-    end_time = time.time()
-    result_value = np.percentile(simulations, 100 - selected_percentile)
-    result_loss = result_value - np.sum(assets['Price'])
-    print(f'Result ({selected_percentile}th percentile): {result_value}')
-    print(f'Loss ({selected_percentile}th percentile): {result_loss}')
-    print(f'Time taken: {end_time - start_time} seconds for {assets_to_consider} assets')
-    print(f'Estimated Total Time: {(end_time - start_time)*num_assets/assets_to_consider/60/60} hours')
-
-    # E. Run simulations and record time taken - loop through assets, ignore zero cashflows
-    print(f'\n\n*** Run {num_sims} Interest Rate Simulations - Approach 2B ***')
-    assets_to_consider = num_assets
-    start_time = time.time()
-    simulations = run_simulations_asset_loop_2B(cash_flows.to_numpy()[:, :assets_to_consider],
-                                                assets['Spread'].to_numpy()[:assets_to_consider], spot_sims)
-    end_time = time.time()
-    result_value = np.percentile(simulations, 100 - selected_percentile)
-    result_loss = result_value - np.sum(assets['Price'])
-    print(f'Result ({selected_percentile}th percentile): {result_value}')
-    print(f'Loss ({selected_percentile}th percentile): {result_loss}')
-    print(f'Time taken: {end_time - start_time} seconds for {assets_to_consider} assets')
-    print(f'Estimated Total Time: {(end_time - start_time) * num_assets / assets_to_consider / 60} minutes')
-
-if __name__ == '__main__':
-    main()
 
 
 

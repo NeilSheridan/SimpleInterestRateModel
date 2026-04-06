@@ -1,6 +1,6 @@
 import numpy as np
 
-from simple_interest_rate_risk_model import get_asset_data, value_portfolio
+from src.valuation_engine import get_asset_data, value_portfolio
 
 def test_value_portfolio():
     """
@@ -8,7 +8,7 @@ def test_value_portfolio():
     """
 
     # 1. Get asset data
-    assets, cash_flows, spot = get_asset_data('Bonds1.xlsx')
+    assets, cash_flows, spot = get_asset_data('../data/Bonds1.xlsx')
 
     # 2. Get actual value of assets
     expected=sum(assets['Price'])

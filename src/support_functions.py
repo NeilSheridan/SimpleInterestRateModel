@@ -2,7 +2,7 @@ import numpy as np
 from numpy import ndarray
 
 
-def spot_to_forward(spot: np.ndarray, frequency_per_annum : int = 12, t=None) -> np.ndarray:
+def spot_to_forward(spot: ndarray, frequency_per_annum : int = 12, t=None) -> ndarray:
     """
     Convert spot to forward rate
 
@@ -22,7 +22,7 @@ def spot_to_forward(spot: np.ndarray, frequency_per_annum : int = 12, t=None) ->
     return forwards
 
 
-def forward_to_spot(forward: np.ndarray, frequency_per_annum:int = 12, t:np.ndarray=None) -> np.ndarray:
+def forward_to_spot(forward: ndarray, frequency_per_annum:int = 12, t: ndarray=None) -> ndarray:
     """
     Convert spot to forward rate
 
@@ -43,7 +43,7 @@ def forward_to_spot(forward: np.ndarray, frequency_per_annum:int = 12, t:np.ndar
 
 
 def get_correlated_random_shocks(correlation: float, num_sims: int, spot: ndarray) -> ndarray:
-    # Calculate correlated shocks
+    """Calculate correlated shocks"""
     shocks = np.random.randn(1, num_sims) * np.sqrt(correlation) + np.random.randn(np.size(spot), num_sims) * np.sqrt(
         1 - correlation)
     return shocks
