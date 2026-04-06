@@ -1,5 +1,6 @@
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 from src.valuation_engine import get_asset_data, simulate_spot_curve, run_simulations_scenario_loop, \
     run_simulations_asset_loop_2A, run_simulations_asset_loop_2B
@@ -13,10 +14,11 @@ def main():
     #
     # 0. Settings
     #
-    num_sims = 100000
+    num_sims = 10000
     selected_percentile = 99.5
     forward_volatility = 0.0075
-    forward_shock_volatility = 0.9
+    forward_shock_correlation = 0.6
+    plot_spot_curves = False
 
     #
     # A. Get asset data
@@ -30,9 +32,26 @@ def main():
     #
     print(f'\n\n*** Simulating {num_sims} Interest Rate Shocks ***')
     start_time = time.time()
-    spot_sims = simulate_spot_curve(spot.to_numpy(),vol=np.array(forward_volatility),num_sims=num_sims,correlation=forward_shock_volatility)
+    spot_sims = simulate_spot_curve(spot.to_numpy(),vol=np.array(forward_volatility),num_sims=num_sims,correlation=forward_shock_correlation)
     end_time = time.time()
     print(f'Time taken: {end_time - start_time} seconds for {num_sims} simulations')
+
+    def do_plot():
+        """Plot Spot Impacts"""
+        step = 12  # keep 1 point per year
+        curves_ds = spot_sims.T[:, ::step]
+
+        # Plot spot curves
+        plt.figure(figsize=(12, 6))
+        plt.plot(curves_ds.T, color='steelblue', alpha=0.01)  # low alpha to show density
+        plt.title("Random Interest Rate Spot Curves")
+        plt.xlabel("Year")
+        plt.ylabel("Spot Rate")
+        plt.grid(True, alpha=0.3)
+        plt.show()
+
+    if plot_spot_curves:
+        do_plot()
 
     #
     # C. Run simulations and record time taken - loop through SIMULATIONS
