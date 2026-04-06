@@ -10,21 +10,34 @@ def main():
         Demonstration of the increase in speed of running optimised code.
     """
 
+    #
     # 0. Settings
+    #
     num_sims = 100000
     selected_percentile = 99.5
     forward_volatility = 0.0075
     forward_shock_volatility = 0.9
 
+    #
     # A. Get asset data
+    #
+    print(f'\n\n*** Loading Asset Data ***')
     assets, cash_flows, spot = get_asset_data(r'../data/Bonds1.xlsx')
     num_assets = len(assets)
 
+    #
     # B. Get interest rate scenarios
+    #
+    print(f'\n\n*** Simulating {num_sims} Interest Rate Shocks ***')
+    start_time = time.time()
     spot_sims = simulate_spot_curve(spot.to_numpy(),vol=np.array(forward_volatility),num_sims=num_sims,correlation=forward_shock_volatility)
+    end_time = time.time()
+    print(f'Time taken: {end_time - start_time} seconds for {num_sims} simulations')
 
+    #
     # C. Run simulations and record time taken - loop through SIMULATIONS
-    print(f'*** Run {num_sims} Interest Rate Simulations - Approach1 ***')
+    #
+    print(f'\n\n*** Calculating Portfolio Impacts - Approach1 ***')
     simulations_to_perform = num_sims
     start_time = time.time()
     simulations = run_simulations_scenario_loop(cash_flows.to_numpy(), assets['Spread'].to_numpy(), spot_sims[:,:simulations_to_perform])
@@ -43,16 +56,20 @@ def main():
 
     present_results(start_time, end_time, simulations,num_sims,simulations_to_perform)
 
+    #
     # D. Run simulations and record time taken - loop through ASSETS
-    print(f'\n\n*** Run {num_sims} Interest Rate Simulations - Approach 2A ***')
+    #
+    print(f'\n\n*** Calculating Portfolio Impacts - Approach 2A ***')
     assets_to_consider = num_assets
     start_time = time.time()
     simulations = run_simulations_asset_loop_2A(cash_flows.to_numpy()[:, :assets_to_consider], assets['Spread'].to_numpy()[:assets_to_consider], spot_sims)
     end_time = time.time()
     present_results(start_time, end_time, simulations, num_assets, assets_to_consider)
 
+    #
     # E. Run simulations and record time taken - loop through ASSETS, BUT ignore zero cashflows
-    print(f'\n\n*** Run {num_sims} Interest Rate Simulations - Approach 2B ***')
+    #
+    print(f'\n\n*** Calculating Portfolio Impacts - Approach 2B ***')
     assets_to_consider = num_assets
     start_time = time.time()
     simulations = run_simulations_asset_loop_2B(cash_flows.to_numpy()[:, :assets_to_consider],
